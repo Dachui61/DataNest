@@ -58,6 +58,11 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "fstream": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "cfg.h": "c",
+    "string": "cpp",
+    "*.tcc": "cpp",
+    "array": "cpp",
+    "string_view": "cpp"
   }
 }
