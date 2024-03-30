@@ -28,9 +28,11 @@ CGI_SRC_PATH=src
 
 # 项目用
 login=$(CGI_BIN_PATH)/login
+reg=$(CGI_BIN_PATH)/reg
 
 # 最终目标
-target=$(login)	
+target=$(login)	\
+		$(reg)
 
 
 ALL:$(target)
@@ -48,6 +50,16 @@ $(login):	$(CGI_SRC_PATH)/login_cgi.o \
 			$(COMMON_PATH)/des.o \
 			$(COMMON_PATH)/base64.o \
 			$(COMMON_PATH)/md5.o
+	$(CC) $^ -o $@ $(LIBS)
+
+# 注册
+$(reg):	$(CGI_SRC_PATH)/reg_cgi.o \
+			$(COMMON_PATH)/make_log.o  \
+			$(COMMON_PATH)/cJSON.o \
+			$(COMMON_PATH)/deal_mysql.o \
+			$(COMMON_PATH)/redis_op.o  \
+			$(COMMON_PATH)/cfg.o \
+			$(COMMON_PATH)/util_cgi.o 
 	$(CC) $^ -o $@ $(LIBS)
 # =====================================================================
 
