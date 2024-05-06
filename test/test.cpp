@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include "jsoncpp/json/json.h"
+#include "spdlog/spdlog.h"
 
 void writeFileFromString(const std::string& filename, const std::string& body) {
     std::ofstream ofile(filename);
@@ -12,7 +13,8 @@ void writeFileFromString(const std::string& filename, const std::string& body) {
 std::string readFileIntoString(const char* filename) {
     std::ifstream ifile(filename);
     if (!ifile.is_open()) {
-        std::cerr << "文件打开错误";
+        // std::cerr << "文件打开错误";
+        spdlog::error("文件打开错误, {}!", "liuyu");
         return "";
     }
     std::ostringstream buf;
@@ -26,7 +28,8 @@ std::string readFileIntoString(const char* filename) {
 Json::Value readJsonFile(const std::string& filename) {
     std::ifstream ifile(filename);
     if (!ifile.is_open()) {
-        std::cerr << "文件打开错误";
+        // std::cerr << "文件打开错误";
+        spdlog::error("文件打开错误, {}!", "liuyu");
         return Json::Value();
     }
     
@@ -37,7 +40,8 @@ Json::Value readJsonFile(const std::string& filename) {
     std::string strerr;
     bool ok = Json::parseFromStream(ReaderBuilder, ifile, &root, &strerr);
     if (!ok) {
-        std::cerr << "json解析错误";
+        // std::cerr << "json解析错误";
+        spdlog::error("json解析出错, {}!", "liuyu");
         return Json::Value();
     }
     
@@ -54,7 +58,8 @@ Json::Value readJsonFromString(const std::string& mystr) {
     std::string strerr;
     bool isok = charread->parse(mystr.c_str(), mystr.c_str() + mystr.size(), &root, &strerr);
     if (!isok || !strerr.empty()) {
-        std::cerr << "json解析出错";
+        // std::cerr << "json解析出错";
+        spdlog::error("json解析出错, {}!", "liuyu");
         return Json::Value();
     }
     
@@ -64,7 +69,7 @@ Json::Value readJsonFromString(const std::string& mystr) {
 int main() {
     // 使用一个已经有数据的 json 对象
     Json::Value root;
-    root = readJsonFile("./conf/config.json");
+    root = readJsonFile("./conf/cofig.json");
     
     // 第一种使用方法 get
     std::string ip = root["mysql"]["ip"].asString();
