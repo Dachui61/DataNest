@@ -17,7 +17,8 @@ LIBS=-lfdfsclient	\
 	 -lhiredis		\
 	 -lfcgi         \
 	 -lm            \
-	 -lmysqlclient  
+	 -lmysqlclient  \
+	 -ljsoncpp
 
 # 目录路径
 TEST_PATH=test

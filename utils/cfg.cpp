@@ -1,84 +1,130 @@
-// #include "cfg.h"
+/* -------------------------------------------*/
+/**
+ * @brief  从配置文件中得到相对应的参数
+ *
+ * @param profile   配置文件路径
+ * @param tile      配置文件title名称[title]
+ * @param key       key
+ * @param value    (out)  得到的value
+ *
+ * @returns
+ *      0 succ, -1 fail
+ */
+/* -------------------------------------------*/
 
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <fstream>
-// #include <memory>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "jsoncpp/json/json.h"
+#include "cfg.h"
 
-// extern "C"
-// {
-// #include "cJSON.h"
-// #include "make_log.h"
-// }
+void writeFileFromString(const std::string& filename, const std::string& body) {
+    std::ofstream ofile(filename);
+    ofile << body;
+    ofile.close();
+}
 
-// int get_cfg_value(const char *profile, const char *title, const char *key, char *value)
-// {
-//     int ret = 0;
+std::string readFileIntoString(const char* filename) {
+    std::ifstream ifile(filename);
+    if (!ifile.is_open()) {
+        std::cerr << "文件打开错误";
+        return "";
+    }
+    std::ostringstream buf;
+    char ch;
+    while (buf && ifile.get(ch)) {
+        buf.put(ch);
+    }
+    return buf.str();
+}
 
-//     // 异常处理 阻断NULL和nullptr
-//     if (profile == nullptr || title == nullptr || key == nullptr)
-//     {
-//         return -1;
-//     }
+Json::Value readJsonFile(const std::string& filename) {
+    std::ifstream ifile(filename);
+    if (!ifile.is_open()) {
+        std::cerr << "文件打开错误";
+        return Json::Value();
+    }
+    
+    Json::CharReaderBuilder ReaderBuilder;
+    ReaderBuilder["emitUTF8"] = true;
+    
+    Json::Value root;
+    std::string strerr;
+    bool ok = Json::parseFromStream(ReaderBuilder, ifile, &root, &strerr);
+    if (!ok) {
+        std::cerr << "json解析错误";
+        return Json::Value();
+    }
+    
+    return root;
+}
 
-//     // 只读打开文件
-//     std::ifstream infile(profile);
-//     if (!infile.is_open())
-//     {
-//         perror("ifstream");
-//         LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "ifstream err\n");
-//         return -1;
-//     }
+Json::Value readJsonFromString(const std::string& mystr) {
+    Json::CharReaderBuilder ReaderBuilder;
+    ReaderBuilder["emitUTF8"] = true;
+    
+    std::unique_ptr<Json::CharReader> charread(ReaderBuilder.newCharReader());
+    
+    Json::Value root;
+    std::string strerr;
+    bool isok = charread->parse(mystr.c_str(), mystr.c_str() + mystr.size(), &root, &strerr);
+    if (!isok || !strerr.empty()) {
+        std::cerr << "json解析出错";
+        return Json::Value();
+    }
+    
+    return root;
+}
 
-//     infile.seekg(0, std::ios::end); // 光标移动到末尾
-//     long size = infile.tellg();     // 获取文件大小
-//     infile.seekg(0, std::ios::beg); // 光标移动到开头
 
-//     std::unique_ptr<char[]> buf(new char[size + 1]); // 使用 unique_ptr 来管理内存
-//     infile.read(buf.get(), size);
-//     buf[size] = '\0'; // 添加字符串结束符
+int get_cfg_value(const std::string& profile, const std::string& tile, const std::string& key, std::string&value){
+    // 使用一个已经有数据的 json 对象
+    Json::Value root;
+    root = readJsonFile(profile);
 
-//     // 解析一个json字符串为cJSON对象
-//     cJSON *root = cJSON_Parse(buf.get());
-//     if (nullptr == root)
-//     {
-//         LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "root err\n");
-//         ret = -1;
-//         infile.close();
-//         return ret;
-//     }
+    if(root.empty()) return -1;
+    
+    // 第一种使用方法 get
+    value = root[tile][key].asString();
+    // std::cout << value << std::endl;
+    return 0;
+}
 
-//     // 返回指定字符串对应的json对象
-//     cJSON *father = cJSON_GetObjectItem(root, title);
-//     if (nullptr == father)
-//     {
-//         LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "father err\n");
-//         ret = -1;
-//         infile.close();
-//         return ret;
-//     }
+//获取数据库用户名、用户密码、数据库标示等信息
+int get_mysql_info(std::string& mysql_user, std::string& mysql_pwd, std::string& mysql_db){
+    if (-1 == get_cfg_value(CFG_PATH, "mysql", "user", mysql_user))
+    {
+        // LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "mysql_user err\n");
+        return -1;
+    }
 
-//     cJSON *son = cJSON_GetObjectItem(father, key);
-//     if (nullptr == son)
-//     {
-//         LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "son err\n");
-//         ret = -1;
-//         infile.close();
-//         return ret;
-//     }
+    if (-1 == get_cfg_value(CFG_PATH, "mysql", "password", mysql_pwd))
+    {
+        // LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "mysql_pwd err\n");
+        return -1;
+    }
 
-//     strcpy(value, son->valuestring); // 拷贝内容
+    if (-1 == get_cfg_value(CFG_PATH, "mysql", "database", mysql_db))
+    {
+        // LOG(CFG_LOG_MODULE, CFG_LOG_PROC, "mysql_db err\n");
+        return -1;
+    }
 
-//     cJSON_Delete(root); // 删除json对象
+    return 0;
+}
 
-//     infile.close();
-//     return ret;
-// }
 
-// int get_mysql_info(char *mysql_user, char *mysql_pwd, char *mysql_db)
-// {
+/**
+ * 测试
+*/
+// int main() {
+//     //mysql 数据库配置信息 用户名， 密码， 数据库名称
+//     std::string mysql_user;
+//     std::string mysql_pwd;
+//     std::string mysql_db;
+
+//     get_mysql_info(mysql_user, mysql_pwd, mysql_db);
+//     std::cout << mysql_user << "," << mysql_pwd << "," << mysql_db << std::endl;
 //     return 0;
 // }
-
 
