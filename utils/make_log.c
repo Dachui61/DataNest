@@ -56,7 +56,7 @@ int dumpmsg_to_file(char *module_name, char *proc_name, const char *filename,
 {
         char mesg[4096]={0};
         char buf[4096]={0};
-	    char filepath[1024] = {0};
+	char filepath[1024] = {0};
         time_t t=0;
         struct tm * now=NULL;                                                                                     
         va_list ap;                                                                                               

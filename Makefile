@@ -1,5 +1,5 @@
 #使用的编译器
-CC=gcc
+CC=g++
 
 #预处理参数
 CPPFLAGS=-I./include	\

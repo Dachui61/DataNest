@@ -115,7 +115,22 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "cinttypes": "cpp",
-    "typeinfo": "cpp"
+    "typeinfo": "cpp",
+    "bitset": "cpp",
+    "charconv": "cpp",
+    "chrono": "cpp",
+    "codecvt": "cpp",
+    "condition_variable": "cpp",
+    "optional": "cpp",
+    "ratio": "cpp",
+    "source_location": "cpp",
+    "future": "cpp",
+    "mutex": "cpp",
+    "semaphore": "cpp",
+    "span": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp",
+    "variant": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }
