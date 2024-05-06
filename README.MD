@@ -10,3 +10,6 @@ ubuntu apt安装比较简单：
 '''
 sudo apt-get install libjsoncpp-dev
 '''
+
+日志管理这里使用了spdlog
+https://github.com/gabime/spdlog
